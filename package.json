@@ -1,13 +1,14 @@
 {
   "name": "vantage-broker-simulation",
   "version": "1.0.0",
-  "description": "Full-stack Vantage-like Broker Platform",
+  "description": "Vite-powered Vantage-like Broker Platform",
   "scripts": {
     "install-client": "cd client && npm install",
-    "start-client": "cd client && npm start",
-    "build-client": "cd client && npm build",
+    "dev": "cd client && npm run dev",
+    "build": "cd client && npm run build",
+    "preview": "cd client && npm run preview",
     "setup": "npm run install-client && echo 'Frontend dependencies installed. Please ensure your PHP and MySQL are configured.'",
-    "start": "npm run start-client"
+    "start": "npm run dev"
   },
   "keywords": [
     "trading",
@@ -15,6 +16,7 @@
     "broker",
     "simulation",
     "php",
+    "vite",
     "react"
   ],
   "author": "",

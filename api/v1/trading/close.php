@@ -41,12 +41,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$pnl, $pnl, $trade['account_id']]);
 
         // --- Copy Trading: Close mirrored trades ---
-        $stmt = $pdo->prepare("SELECT id, account_id FROM trades WHERE parent_trade_id = ? AND status = 'open'");
+        $stmt = $pdo->prepare("SELECT id, account_id, volume FROM trades WHERE parent_trade_id = ? AND status = 'open'");
         $stmt->execute([$trade_id]);
         $mirrored_trades = $stmt->fetchAll();
 
         foreach ($mirrored_trades as $m_trade) {
-            $m_pnl = calculate_pnl($trade['symbol'], $trade['type'], (float)$trade['open_price'], (float)$close_price, (float)$trade['volume']); // Simplified for simulation
+            // Correctly use the copier's volume for PnL calculation
+            $m_pnl = calculate_pnl($trade['symbol'], $trade['type'], (float)$trade['open_price'], (float)$close_price, (float)$m_trade['volume']);
 
             $stmt = $pdo->prepare("UPDATE trades SET close_price = ?, close_time = CURRENT_TIMESTAMP, pnl = ?, status = 'closed' WHERE id = ?");
             $stmt->execute([$close_price, $m_pnl, $m_trade['id']]);
@@ -56,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $pdo->commit();
-        send_response(200, ['pnl' => $pnl, 'close_price' => $close_price], 'Trade closed successfully');
+        send_response(200, ['pnl' => (float)$pnl, 'close_price' => (float)$close_price], 'Trade closed successfully');
 
     } catch (Exception $e) {
         if ($pdo->inTransaction()) $pdo->rollBack();
