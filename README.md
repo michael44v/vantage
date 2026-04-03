@@ -1,6 +1,6 @@
 # Vantage-like Trading Broker Simulation (React + PHP + SQL)
 
-A full-stack trading simulation platform built with a React frontend, a RESTful Plain PHP API, and a MySQL database. This project mirrors the features of major brokers like Vantage Markets, including KYC verification, Copy Trading, and multi-tier account plans.
+A professional full-stack trading simulation platform featuring a React frontend, a RESTful Plain PHP API, and a MySQL database. This project mirrors the features of major brokers like Vantage Markets.
 
 ## 🚀 Key Features
 - **Client Portal**: Multi-tier account management (Standard STP, Raw ECN, Pro ECN).
@@ -12,7 +12,7 @@ A full-stack trading simulation platform built with a React frontend, a RESTful 
 
 ---
 
-## 🛠️ Installation & Setup
+## 🛠️ Quick Start
 
 ### 1. Database Setup (MySQL)
 1.  Create a new database named `vantage_db`.
@@ -20,74 +20,38 @@ A full-stack trading simulation platform built with a React frontend, a RESTful 
     ```bash
     mysql -u your_user -p vantage_db < db/schema.sql
     ```
-    *This will create all tables and seed the initial balance-based account plans.*
 
 ### 2. Backend API Setup (PHP)
-1.  Ensure you have **PHP 7.4+** installed.
-2.  Configure your web server (Apache/Nginx) to point to the `api/v1/` directory.
-3.  **Environment Variables**: Set the following variables in your server configuration (e.g., `.htaccess` or system env):
-    - `DB_HOST`: Your database host (e.g., `localhost`)
-    - `DB_USER`: Your database username
-    - `DB_PASS`: Your database password
-    - `DB_NAME`: `vantage_db`
-    - `JWT_SECRET`: A secure random string for signing tokens.
-
-#### RESTful Routing (.htaccess example)
-If using Apache, ensure your `api/v1/.htaccess` handles routing to `index.php`:
-```apache
-RewriteEngine On
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php [QSA,L]
-```
+1.  Point your web server (Apache/Nginx) to the `api/v1/` directory.
+2.  Ensure PHP 7.4+ is installed.
+3.  Set the following environment variables in your server:
+    - `DB_HOST`, `DB_USER`, `DB_PASS`, `DB_NAME`, `JWT_SECRET`
 
 ### 3. Frontend Setup (React)
-1.  Navigate to the `client/` directory.
-2.  Install dependencies:
-    ```bash
-    npm install
-    ```
-3.  Set the API URL in a `.env` file:
-    ```env
-    REACT_APP_API_URL=http://localhost/api/v1
-    ```
-4.  Start the development server:
-    ```bash
-    npm start
-    ```
+From the project root directory, run:
+```bash
+npm install
+npm start
+```
+*Note: This will automatically install dependencies in the `client/` folder and start the development server.*
 
 ---
 
 ## 🛡️ Security Implementation
-- **JWT Authentication**: All user-facing API calls require a signed HMAC-SHA256 JWT in the `Authorization` header.
-- **IDOR Protection**: All sensitive actions (trading, deposits, KYC) extract the `user_id` from the secure token, never the request body.
-- **Admin Authorization**: Administrative endpoints use a `require_admin()` middleware to verify user roles.
-- **SQL Security**: 100% usage of PDO prepared statements for all database queries.
+- **JWT Authentication**: HMAC-SHA256 signed tokens for secure user sessions.
+- **IDOR Protection**: Secure extraction of `user_id` from tokens, preventing unauthorized account access.
+- **Admin Authorization**: Role-based access control for administrative endpoints.
+- **PDO Security**: 100% prepared statements to prevent SQL Injection.
 
-## 📈 Trading Simulation Logic
-- **Prices**: Prices are generated using a time-based pseudo-random generator in `price_service.php`.
-- **Copy Trading**: The system mirrors trades from providers to copiers using the formula:
-  `Copier_Volume = Provider_Volume * (Copier_Equity / Provider_Equity)`
-- **PnL**: Calculated in real-time within the frontend for display and reconciled in the backend upon trade closure.
+## 📈 Trading Simulation
+- **Prices**: Time-based pseudo-random price movements in `price_service.php`.
+- **Copy Trading Logic**: Proportional mirroring based on copier-to-provider equity ratio.
+- **Financial Flow**: Full lifecycle from manual/automated deposit to trade closure and withdrawal reconciliation.
 
 ---
 
 ## 📂 Project Structure
-```text
-├── api/v1/               # PHP REST API
-│   ├── auth/             # Login, Register, Logout
-│   ├── user/             # Account Management, KYC
-│   ├── trading/          # Orders, Price Service, Copy Trading
-│   ├── finance/          # Wallet & Deposits
-│   └── admin/            # Manual Reviews & Stats
-├── client/src/           # React Frontend
-│   ├── components/       # Shared UI
-│   ├── pages/            # View Pages (Terminal, Dashboard, etc.)
-│   └── api/              # Axios API Client
-└── db/                   # Database SQL Schema
-```
-
----
-
-### Disclaimer
-This project is a **simulation platform** intended for educational or developmental purposes. Real financial integrations (FIX API / Liquidity Bridges) are not included in this core build.
+- `api/v1/`: PHP REST API (Auth, Trading, Finance, Admin).
+- `client/`: React Frontend (Dashboard, Terminal, CopyTrading, KYC).
+- `db/`: MySQL Schema and initial seeds.
+- `package.json`: Root manager for frontend commands.

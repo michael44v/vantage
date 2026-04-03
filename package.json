@@ -1,0 +1,22 @@
+{
+  "name": "vantage-broker-simulation",
+  "version": "1.0.0",
+  "description": "Full-stack Vantage-like Broker Platform",
+  "scripts": {
+    "install-client": "cd client && npm install",
+    "start-client": "cd client && npm start",
+    "build-client": "cd client && npm build",
+    "setup": "npm run install-client && echo 'Frontend dependencies installed. Please ensure your PHP and MySQL are configured.'",
+    "start": "npm run start-client"
+  },
+  "keywords": [
+    "trading",
+    "vantage",
+    "broker",
+    "simulation",
+    "php",
+    "react"
+  ],
+  "author": "",
+  "license": "ISC"
+}
