@@ -11,8 +11,6 @@ const TradingTerminal = () => {
     EURUSD: 1.0854, GBPUSD: 1.2642, USDJPY: 151.20, XAUUSD: 2165.50, BTCUSD: 65430.00
   });
 
-  const containerRef = useRef();
-
   useEffect(() => {
     fetchAccounts();
     const interval = setInterval(updatePrices, 1000);
@@ -105,9 +103,20 @@ const TradingTerminal = () => {
     }
   };
 
+  const handleCloseTrade = async (tradeId) => {
+    try {
+      const response = await apiClient.post('/trading/close.php', { trade_id: tradeId });
+      alert(response.data.message);
+      fetchOpenTrades();
+      fetchAccounts(); // Update balance
+    } catch (err) {
+      alert('Close failed: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
   const calculatePnL = (trade) => {
     const currentPrice = priceData[trade.symbol];
-    const lotSize = trade.symbol === 'XAUUSD' ? 100 : 100000;
+    const lotSize = trade.symbol === 'XAUUSD' ? 100 : (trade.symbol === 'BTCUSD' ? 1 : 100000);
     const diff = trade.type === 'buy' ? currentPrice - parseFloat(trade.open_price) : parseFloat(trade.open_price) - currentPrice;
     return (diff * parseFloat(trade.volume) * lotSize).toFixed(2);
   };
@@ -173,6 +182,7 @@ const TradingTerminal = () => {
                 <th className="p-2 pb-4 font-normal text-right">Open Price</th>
                 <th className="p-2 pb-4 font-normal text-right">Current Price</th>
                 <th className="p-2 pb-4 font-normal text-right">Profit / Loss</th>
+                <th className="p-2 pb-4 font-normal text-right">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -188,12 +198,20 @@ const TradingTerminal = () => {
                     <td className={`p-2 text-right font-bold ${pnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                       {pnl >= 0 ? '+' : ''}${pnl}
                     </td>
+                    <td className="p-2 text-right">
+                       <button
+                          onClick={() => handleCloseTrade(trade.id)}
+                          className="bg-red-900/30 hover:bg-red-600 text-red-500 hover:text-white px-3 py-1 rounded border border-red-500/50 transition-all text-xs font-black uppercase"
+                       >
+                          CLOSE
+                       </button>
+                    </td>
                   </tr>
                 );
               })}
               {activeTrades.length === 0 && (
                 <tr>
-                  <td colSpan="6" className="p-10 text-center text-gray-600">No open positions in this account.</td>
+                  <td colSpan="7" className="p-10 text-center text-gray-600">No open positions in this account.</td>
                 </tr>
               )}
             </tbody>

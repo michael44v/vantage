@@ -36,10 +36,14 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleTransactionAction = async (id, action) => {
-    // Action: 'approved' or 'rejected'
-    alert(`Transaction ${id} ${action} (Manual processing)`);
-    // fetchAdminData();
+  const handleTransactionAction = async (id, status) => {
+    try {
+      const response = await apiClient.post('/admin/process_transaction.php', { id: id, status: status });
+      alert(response.data.message);
+      fetchAdminData();
+    } catch (err) {
+      alert('Error: ' + err.message);
+    }
   };
 
   if (loading) return <div className="bg-gray-900 min-h-screen text-white flex items-center justify-center">Loading Admin Panel...</div>;
@@ -112,7 +116,7 @@ const AdminDashboard = () => {
                     <td className="p-4 uppercase text-gray-400 font-medium">{t.type}</td>
                     <td className="p-4 text-gray-500">{t.created_at}</td>
                     <td className="p-4 flex space-x-3">
-                      <button onClick={() => handleTransactionAction(t.id, 'approved')} className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded font-bold text-xs transition-colors">CONFIRM</button>
+                      <button onClick={() => handleTransactionAction(t.id, 'completed')} className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded font-bold text-xs transition-colors">CONFIRM</button>
                       <button onClick={() => handleTransactionAction(t.id, 'rejected')} className="bg-gray-600 hover:bg-gray-500 px-4 py-2 rounded font-bold text-xs transition-colors">DECLINE</button>
                     </td>
                   </tr>
@@ -138,12 +142,12 @@ const AdminDashboard = () => {
               <span className="text-4xl font-black text-white">{stats.total_accounts.toLocaleString()}</span>
            </div>
            <div className="bg-gray-800 p-8 rounded-xl border border-gray-700 shadow-lg flex flex-col items-center justify-center text-center group hover:border-yellow-500/50 transition-all">
-              <span className="text-gray-500 text-xs uppercase block mb-2 font-bold tracking-widest">Daily Deposits</span>
+              <span className="text-gray-500 text-xs uppercase block mb-2 font-bold tracking-widest">Total Deposits</span>
               <span className="text-4xl font-black text-green-400">${stats.total_deposits.toLocaleString()}</span>
            </div>
            <div className="bg-gray-800 p-8 rounded-xl border border-gray-700 shadow-lg flex flex-col items-center justify-center text-center group hover:border-blue-400 transition-all">
               <span className="text-gray-500 text-xs uppercase block mb-2 font-bold tracking-widest">Platform PnL</span>
-              <span className="text-4xl font-black text-blue-400">${stats.platform_pnl.toLocaleString()}</span>
+              <span className={`text-4xl font-black ${stats.platform_pnl >= 0 ? 'text-blue-400' : 'text-red-400'}`}>${stats.platform_pnl.toLocaleString()}</span>
            </div>
         </div>
       </div>

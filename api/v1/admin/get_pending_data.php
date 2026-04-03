@@ -4,7 +4,7 @@
 require_once __DIR__ . '/../config.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    require_admin(); // Secure extraction of admin context
+    require_admin();
 
     $pdo = get_db_connection();
 
@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $stmt->execute();
         $transactions = $stmt->fetchAll();
 
-        // System stats
+        // Real System stats
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM users");
         $stmt->execute();
         $total_users = $stmt->fetchColumn();
@@ -40,14 +40,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $stmt->execute();
         $total_accounts = $stmt->fetchColumn();
 
+        $stmt = $pdo->prepare("SELECT SUM(amount) FROM transactions WHERE type = 'deposit' AND status = 'completed'");
+        $stmt->execute();
+        $total_deposits = (float)$stmt->fetchColumn();
+
+        $stmt = $pdo->prepare("SELECT SUM(pnl) FROM trades WHERE status = 'closed'");
+        $stmt->execute();
+        $total_pnl = (float)$stmt->fetchColumn();
+
         send_response(200, [
             'kyc' => $kyc,
             'transactions' => $transactions,
             'stats' => [
                 'total_users' => $total_users,
                 'total_accounts' => $total_accounts,
-                'total_deposits' => 45200, // Mock for simulation
-                'platform_pnl' => 125000 // Mock for simulation
+                'total_deposits' => $total_deposits ?: 0,
+                'platform_pnl' => $total_pnl ?: 0
             ]
         ]);
 
